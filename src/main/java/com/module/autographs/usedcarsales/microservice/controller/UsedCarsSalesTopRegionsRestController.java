@@ -1,16 +1,18 @@
 package com.module.autographs.usedcarsales.microservice.controller;
 
+import com.module.autographs.usedcarsales.microservice.AutographsUsedCarSalesApplication;
 import com.module.autographs.usedcarsales.microservice.dto.UsedCarsSalesTopRegionsDTO;
 import com.module.autographs.usedcarsales.microservice.model.UsedCarsSalesTopRegionsDataModel;
-import com.module.autographs.usedcarsales.microservice.service.UsedCarsSalesTopRegionsService;
-import com.module.autographs.usedcarsales.microservice.util.Constants;
-import com.module.autographs.usedcarsales.microservice.util.ObjectMapperUtils;
 import com.module.autographs.usedcarsales.microservice.repository.UsedCarsSalesTopRegionsRepository;
+import com.module.autographs.usedcarsales.microservice.service.UsedCarsSalesTopRegionsService;
+import com.module.autographs.usedcarsales.microservice.util.ObjectMapperUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +20,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import static com.module.autographs.usedcarsales.microservice.util.Constants.*;
+
 
 @RestController
 @RequestMapping("/api/v1/usedCarSales")
-@Tag(name = "UsedCarTopRegionsSales")
+@Tag(name = "UsedCarsSalesTopRegionsRestController")
 
 public class UsedCarsSalesTopRegionsRestController {
 
@@ -31,33 +35,40 @@ public class UsedCarsSalesTopRegionsRestController {
     @Autowired
     private UsedCarsSalesTopRegionsRepository usedCarsSalesTopRegionsRepository;
 
-    @GetMapping(value = Constants.USED_CARS_TOP_REGIONS_SALES_GET_API_PATH)
-    @Operation(summary = Constants.USED_CARS_TOP_REGIONS_SALES_GET_SUMMARY, responses = {@ApiResponse(description = Constants.USED_CARS_TOP_REGIONS_SALES_SUCCESS, responseCode = Constants.HTTP_RESPONSE_CODE_OK, content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsedCarsSalesTopRegionsDTO.class))), @ApiResponse(description = Constants.USED_CARS_TOP_REGIONS_SALES_NO_DATA_FOUND, responseCode = Constants.HTTP_RESPONSE_CODE_OK, content = @Content)})
+    private static final Logger logger = LogManager.getLogger(AutographsUsedCarSalesApplication.class);
+
+    @GetMapping(value = GET_API_PATH_BY_TOP_REGIONS_TYPE)
+    @Operation(summary = SWAGGER_GET_API_BY_TOP_REGIONS_TYPE_SUMMARY, responses = {@ApiResponse(description = SWAGGER_GET_API_BY_TOP_REGIONS_SUCCESS, responseCode = HTTP_RESPONSE_CODE_OK, content = @Content(mediaType = "application/json", schema = @Schema(implementation = UsedCarsSalesTopRegionsDTO.class))), @ApiResponse(description = SWAGGER_GET_API_BY_TOP_REGIONS_NO_DATA_FOUND, responseCode = HTTP_RESPONSE_CODE_OK, content = @Content)})
     public List<UsedCarsSalesTopRegionsDTO> getUsedCarsSalesTopRegionsData() {
         List<UsedCarsSalesTopRegionsDTO> usedCarsSalesTopRegionsDTOList = ObjectMapperUtils.mapAll(usedCarsSalesTopRegionsService.findAll(), UsedCarsSalesTopRegionsDTO.class);
         if (usedCarsSalesTopRegionsDTOList.size() > 0) {
+            logger.info(LOGGER_GET_API_BY_TOP_MODELS_TYPE_SUCCESS);
             return ResponseEntity.ok(usedCarsSalesTopRegionsDTOList).getBody();
         } else {
-            throw new ResponseStatusException(HttpStatus.OK, Constants.USED_CARS_TOP_REGIONS_SALES_NO_DATA_FOUND);
+            logger.info(LOGGER_GET_API_BY_TOP_MODELS_TYPE_FAILURE);
+            throw new ResponseStatusException(HttpStatus.OK, SWAGGER_GET_API_BY_TOP_REGIONS_NO_DATA_FOUND);
         }
     }
 
-    @PostMapping(value = Constants.USED_CARS_TOP_REGIONS_SALES_POST_API_PATH)
-    @Operation(summary = Constants.USED_CARS_TOP_REGIONS_SALES_POST_SUMMARY, responses = {@ApiResponse(description = Constants.USED_CARS_TOP_REGIONS_SALES_ADD_SUCCESS, responseCode = "200", content = @Content(mediaType = "application/text", schema = @Schema(implementation = UsedCarsSalesTopRegionsDTO.class))), @ApiResponse(description = Constants.USED_CARS_TOP_REGIONS_SALES_ADD_FAILURE, responseCode = Constants.HTTP_RESPONSE_CODE_INTERNAL_SERVER_ERROR, content = @Content)})
+    @PostMapping(value = POST_API_PATH_BY_TOP_REGIONS_TYPE)
+    @Operation(summary = SWAGGER_POST_API_BY_TOP_REGIONS_TYPE_SUMMARY, responses = {@ApiResponse(description = SWAGGER_POST_API_BY_TOP_REGIONS_TYPE_SUCCESS, responseCode = "200", content = @Content(mediaType = "application/text", schema = @Schema(implementation = UsedCarsSalesTopRegionsDTO.class))), @ApiResponse(description = SWAGGER_POST_API_BY_TOP_REGIONS_TYPE_FAILURE, responseCode = HTTP_RESPONSE_CODE_INTERNAL_SERVER_ERROR, content = @Content)})
     public ResponseEntity<?> addUsedCarsSalesTopRegionsData(@RequestBody List<UsedCarsSalesTopRegionsDTO> usedCarsSalesTopRegionsDTOList) {
         List<UsedCarsSalesTopRegionsDataModel> usedCarsSalesTopRegionsDataModelList = usedCarsSalesTopRegionsService.addUsedCarsSalesTopRegionsData(ObjectMapperUtils.mapAll(usedCarsSalesTopRegionsDTOList, UsedCarsSalesTopRegionsDataModel.class));
         if (usedCarsSalesTopRegionsDataModelList.size() > 0) {
-            return ResponseEntity.ok(Constants.USED_CARS_TOP_REGIONS_SALES_ADD_SUCCESS);
+            logger.info(LOGGER_POST_API_BY_TOP_MODELS_TYPE_SUCCESS);
+            return ResponseEntity.ok(SWAGGER_POST_API_BY_TOP_REGIONS_TYPE_SUCCESS);
         } else {
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, Constants.USED_CARS_TOP_REGIONS_SALES_ADD_FAILURE);
+            logger.info(LOGGER_POST_API_BY_TOP_MODELS_TYPE_FAILURE);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, SWAGGER_POST_API_BY_TOP_REGIONS_TYPE_FAILURE);
         }
     }
 
-    @DeleteMapping(value = Constants.USED_CARS_TOP_REGIONS_SALES_DELETE_ALL_API_PATH)
-    @Operation(summary = Constants.USED_CARS_TOP_REGIONS_SALES_DELETE_ALL_SUMMARY, responses = {@ApiResponse(description = Constants.USED_CARS_TOP_REGIONS_SALES_DELETE_ALL_SUCCESS, responseCode = "200", content = @Content(mediaType = "application/text", schema = @Schema(implementation = UsedCarsSalesTopRegionsDTO.class))), @ApiResponse(description = Constants.USED_CARS_TOP_REGIONS_SALES_DELETE_ALL_FAILURE, responseCode = Constants.HTTP_RESPONSE_CODE_INTERNAL_SERVER_ERROR, content = @Content)})
+    @DeleteMapping(value = DELETE_ALL_API_PATH_BY_TOP_REGIONS_TYPE)
+    @Operation(summary = SWAGGER_DELETE_API_BY_TOP_REGIONS_TYPE_SUMMARY, responses = {@ApiResponse(description = SWAGGER_DELETE_API_BY_TOP_REGIONS_TYPE_SUCCESS, responseCode = "200", content = @Content(mediaType = "application/text", schema = @Schema(implementation = UsedCarsSalesTopRegionsDTO.class))), @ApiResponse(description = SWAGGER_DELETE_API_BY_TOP_REGIONS_TYPE_FAILURE, responseCode = HTTP_RESPONSE_CODE_INTERNAL_SERVER_ERROR, content = @Content)})
     public ResponseEntity<?> deleteAllUsedCarsSalesData() {
+        logger.info(LOGGER_DELETE_API_BY_TOP_MODELS_TYPE_SUCCESS);
         usedCarsSalesTopRegionsRepository.deleteAll();
-        return ResponseEntity.ok(Constants.USED_CARS_TOP_REGIONS_SALES_DELETE_ALL_SUCCESS);
+        return ResponseEntity.ok(SWAGGER_DELETE_API_BY_TOP_REGIONS_TYPE_SUCCESS);
     }
 
 }
